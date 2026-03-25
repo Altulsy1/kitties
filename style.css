@@ -1,0 +1,579 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(145deg, #1e2b3a 0%, #2c3e50 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 35px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.game-container {
+    border-radius: 35px;
+    padding: 30px;
+    text-align: center;
+    max-width: 550px;
+    width: 100%;
+    color: #fff;
+    position: relative; /* لإضافة زر اللغة بشكل مطلق */
+}
+
+/* زر تبديل اللغة */
+.language-switcher {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+}
+
+.lang-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    font-size: 28px;
+    padding: 5px 10px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2), 0 8px 15px rgba(0,0,0,0.3);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lang-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 0 rgba(0,0,0,0.2), 0 12px 20px rgba(0,0,0,0.4);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+h1 {
+    color: #fff;
+    margin-top: 10px; /* تعديل بسبب زر اللغة */
+    margin-bottom: 25px;
+    font-size: 32px;
+    text-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+    letter-spacing: 1px;
+}
+
+/* لوحة اللعب */
+.board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    background: #6b4f3a;
+    background-image: radial-gradient(circle at 30% 30%, #8b6b4f, #4f3a28);
+    padding: 20px;
+    border-radius: 28px;
+    margin: 20px 0;
+    direction: ltr;
+    box-shadow: inset 0 -5px 0 #3a2a1c, 0 15px 30px rgba(0,0,0,0.6);
+}
+
+/* الخلايا */
+.cell {
+    aspect-ratio: 1 / 1;
+    background: #d4b28c;
+    background-image: radial-gradient(circle at 30% 40%, #f3e0c0, #c9a77d);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 7px 0 #7b5f42, 0 10px 18px rgba(0,0,0,0.4), inset 0 -2px 5px rgba(255,255,255,0.5), inset 0 2px 5px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(45deg, rgba(100, 60, 20, 0.15) 0px, rgba(100, 60, 20, 0.15) 3px, transparent 3px, transparent 8px);
+    pointer-events: none;
+}
+
+.cell:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 0 #7b5f42, 0 15px 25px rgba(0,0,0,0.5), inset 0 -3px 7px rgba(255,255,255,0.6), inset 0 3px 7px rgba(0,0,0,0.3);
+}
+
+.cell.selected {
+    outline: none;
+    animation: cellSelectedGlow 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes cellSelectedGlow {
+    from { box-shadow: 0 0 0 4px #ffd966, 0 10px 0 #7b5f42, 0 18px 30px black; }
+    to { box-shadow: 0 0 0 8px #ffb347, 0 10px 0 #7b5f42, 0 22px 35px black; }
+}
+
+/* شكل الأحجار */
+.stone {
+    display: inline-block;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s;
+    box-shadow: 0 7px 0 rgba(0,0,0,0.25), 0 8px 15px rgba(0,0,0,0.4);
+}
+
+.stone::after {
+    content: '';
+    position: absolute;
+    top: 6%;
+    left: 6%;
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.2) 80%);
+    opacity: 0.9;
+}
+
+.player1-stone {
+    background: radial-gradient(circle at 30% 30%, #ff8a8a, #b03a2e);
+    border: 2px solid #ff4d4d;
+    box-shadow: 0 7px 0 #7a2a1f, 0 10px 20px rgba(200, 60, 40, 0.6), inset 0 -4px 6px rgba(0,0,0,0.3), inset 0 4px 6px rgba(255,255,255,0.5);
+}
+
+.player2-stone {
+    background: radial-gradient(circle at 30% 30%, #7db9ff, #1f6390);
+    border: 2px solid #4a9eff;
+    box-shadow: 0 7px 0 #124570, 0 10px 20px rgba(30, 100, 180, 0.6), inset 0 -4px 6px rgba(0,0,0,0.3), inset 0 4px 6px rgba(255,255,255,0.5);
+}
+
+.cell:hover .stone {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 0 rgba(0,0,0,0.25), 0 15px 25px rgba(0,0,0,0.5);
+}
+
+.cell.selected .stone {
+    transform: scale(1.08);
+    filter: brightness(1.2);
+    animation: selectedPulse 1.2s infinite alternate;
+}
+
+@keyframes selectedPulse {
+    from { box-shadow: 0 0 12px #ffe270, 0 7px 0 rgba(0,0,0,0.25), 0 8px 18px black; }
+    to { box-shadow: 0 0 22px #ffb347, 0 7px 0 rgba(0,0,0,0.25), 0 8px 22px black; }
+}
+
+.empty-stone {
+    opacity: 0;
+    width: 70%;
+    height: 70%;
+    background: transparent;
+    box-shadow: none;
+    pointer-events: none;
+}
+
+/* شريط الحالة */
+.status-bar {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 60px;
+    padding: 12px 20px;
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: inset 0 2px 8px rgba(255,255,255,0.3), 0 8px 18px rgba(0,0,0,0.3);
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px black;
+}
+
+.player1-info {
+    color: #ffc9c9;
+}
+
+.player2-info {
+    color: #c9e2ff;
+}
+
+#turn-indicator {
+    font-size: 22px;
+    font-weight: bold;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 20px;
+    border-radius: 40px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    text-shadow: 0 2px 3px black;
+}
+
+/* أزرار وضع اللعبة */
+.game-mode {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.mode-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    flex: 1;
+    min-width: 150px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+
+.mode-btn.active {
+    background: #2ecc71;
+    border-color: #2ecc71;
+    box-shadow: 0 0 20px #2ecc71, 0 5px 15px rgba(46,204,113,0.5);
+    color: white;
+}
+
+/* حاوية الأزرار السفلية */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.action-buttons button {
+    flex: 1;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 12px 10px;
+    font-size: 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.3);
+    color: white;
+    backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-buttons button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.2), 0 15px 25px rgba(0,0,0,0.4);
+}
+
+#aboutBtn {
+    background: rgba(52, 152, 219, 0.5);
+}
+
+#muteBtn {
+    background: rgba(230, 126, 34, 0.5);
+}
+
+/* أيقونات */
+.icon {
+    font-size: 1.3em;
+    line-height: 1;
+}
+
+/* رسالة الفوز */
+.winner {
+    font-size: 30px;
+    font-weight: bold;
+    color: #f1c40f;
+    margin-top: 20px;
+    text-shadow: 3px 3px 0 #c0392b, 0 5px 15px rgba(241,196,15,0.6);
+    animation: winnerPop 0.5s ease-out;
+}
+
+@keyframes winnerPop {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* تأثير الفوز على اللوحة */
+.victory-glow {
+    animation: victoryGlow 1.5s infinite alternate;
+}
+
+@keyframes victoryGlow {
+    from { box-shadow: 0 0 30px gold; }
+    to { box-shadow: 0 0 70px orange; }
+}
+
+/* النافذة المنبثقة (Modal) */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.modal.show {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content.glass {
+    margin: 15% auto;
+    padding: 25px;
+    border-radius: 30px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    text-align: center;
+    position: relative;
+    transform: translateY(-50px);
+    transition: transform 0.3s ease;
+    color: #fff;
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: #e74c3c;
+}
+
+.modal-content h2 {
+    color: white;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 26px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.modal-content p {
+    font-size: 18px;
+    color: #f0f0f0;
+    margin: 15px 0;
+    word-break: break-word;
+}
+
+.modal-content a {
+    color: #85c1ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.modal-content a:hover {
+    text-decoration: underline;
+}
+
+/* خيار اختيار اللون */
+.color-choice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 15px 0;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(8px);
+    border-radius: 60px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.color-choice span {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 4px black;
+}
+
+.color-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 40px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(5px);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2), 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.color-btn.red {
+    border: 2px solid #ff6b6b;
+}
+
+.color-btn.blue {
+    border: 2px solid #6baeff;
+}
+
+.color-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 0 rgba(0,0,0,0.2), 0 10px 18px rgba(0,0,0,0.3);
+}
+
+.color-btn .stone {
+    width: 24px;
+    height: 24px;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+    margin: 0;
+}
+
+/* أزرار نوع الإعداد المبدئي */
+.setup-mode {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.setup-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 8px 16px;
+    font-size: 15px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    flex: 1;
+    min-width: 120px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    backdrop-filter: blur(5px);
+}
+
+.setup-btn.active {
+    background: #f39c12;
+    border-color: #f39c12;
+    box-shadow: 0 0 15px #f39c12;
+}
+
+/* تحسين للشاشات الصغيرة */
+@media (max-width: 500px) {
+    .game-mode {
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    .mode-btn {
+        min-width: 0;
+        padding: 10px 5px;
+        font-size: 0;
+    }
+
+    .mode-btn .icon {
+        font-size: 26px;
+    }
+
+    .action-buttons {
+        gap: 8px;
+    }
+
+    .action-buttons button {
+        padding: 12px 5px;
+        font-size: 0;
+    }
+
+    .action-buttons button .icon {
+        font-size: 26px;
+    }
+
+    .btn-text {
+        display: none;
+    }
+
+    .modal-content {
+        margin: 30% auto;
+        width: 95%;
+        padding: 20px;
+    }
+
+    .color-choice {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .color-btn {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .language-switcher {
+        top: 10px;
+        left: 10px;
+    }
+
+    .lang-btn {
+        font-size: 24px;
+        padding: 4px 8px;
+    }
+}
